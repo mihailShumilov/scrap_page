@@ -1,5 +1,5 @@
 {
-  "name": "@worker/server",
+  "name": "@api/server",
   "private": true,
   "scripts": {
     "start": "nest start",
