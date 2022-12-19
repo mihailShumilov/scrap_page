@@ -7,7 +7,7 @@ import axios from 'axios';
 
 
 (async () => {
-    const browser = await puppeteer.launch({headless: true});
+    const browser = await puppeteer.launch({headless: true, args: ['--no-sandbox']});
 
     const worker = new Worker(process.env.SCRAP_QUEUE, async (job: Job) => {
             const page = await browser.newPage();
