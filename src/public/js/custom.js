@@ -15,6 +15,10 @@ function displayLoader(){
         "    </div>");
 }
 
+function encodeHTMLEntities(text) {
+    return $("<textarea/>").text(text).html();
+}
+
 $(function() {
     const socket = io();
 
@@ -29,7 +33,7 @@ $(function() {
 
     socket.on("html", (data)=>{
         // console.log('data from socket: ', data);
-        $(".content").text(data);
+        $(".content").html('<div class="pre-scrollable border p-3 m-3"><pre><code>'+encodeHTMLEntities(data)+'</code></pre></div>');
     });
 
 
