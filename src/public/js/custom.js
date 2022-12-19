@@ -16,16 +16,34 @@ function displayLoader(){
 }
 
 $(function() {
+    const socket = io();
+
+    // client-side
+    socket.on("connect", () => {
+        // console.log('connect: ', socket.id); // x8WIv7-mJelg7on_ALbx
+    });
+
+    socket.on("disconnect", () => {
+        // console.log('disconnect: ', socket.id); // undefined
+    });
+
+    socket.on("html", (data)=>{
+        // console.log('data from socket: ', data);
+        $(".content").text(data);
+    });
+
+
     $('#parse-btn').on('click', function(e){
         const url = $('#link-input').val();
         if(isValidHttpUrl(url)){
             displayLoader();
-            console.log({url, callback: '/callback'});
+            const requestData = {url, callback: window.location.href + 'callback', socketId: socket.id};
+            // console.log(requestData);
             $.ajax({
                 method: "POST",
                 url: '/scrap',
                 contentType : 'application/json',
-                data: JSON.stringify({url, callback: '/callback'}),
+                data: JSON.stringify(requestData),
                 success: function(data){
                     console.log('response data: ', data)
                 }
