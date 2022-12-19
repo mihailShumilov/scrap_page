@@ -1,22 +1,29 @@
 import { Request, Response } from 'express';
+import { Queue } from 'bullmq';
+
+
 
 interface AcceptScrapeResponse {
     status: string;
+    jobId: string;
 }
 
-type AcceptScrapeBuilder = (url: string, callback: string) => AcceptScrapeResponse;
+type AcceptScrapeBuilder = (url: string, callback: string) => Promise<AcceptScrapeResponse>;
 
-const acceptScrapeBuilder: AcceptScrapeBuilder = (url, callback) => {
+const acceptScrapeBuilder: AcceptScrapeBuilder = async (url, callback) => {
+    const queue = new Queue(process.env.SCRAP_QUEUE);
+    const job = await queue.add(process.env.SCRAP_JOB, { url, callback });
+
     return {
-        status: "ok"
+        status: "ok",
+        jobId: job.id
     }
 };
 
-export const acceptScrapeHandler = (req: Request, res: Response) => {
+export const acceptScrapeHandler = async (req: Request, res: Response) => {
     const { body } = req;
     const { url, callback } = body;
-    console.log({ url, callback });
-    const response = acceptScrapeBuilder(url, callback);
+    const response = await acceptScrapeBuilder(url, callback);
 
     return res.json(response);
 };

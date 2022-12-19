@@ -1,3 +1,5 @@
+import * as dotenv from 'dotenv';
+dotenv.config();
 import express from 'express';
 import { rootHandler, helloHandler } from './handlers';
 import {acceptScrapeHandler} from "./acceptScrapeRequest";
