@@ -12,6 +12,7 @@ type AcceptScrapeBuilder = (url: string, callback: string) => Promise<AcceptScra
 
 const acceptScrapeBuilder: AcceptScrapeBuilder = async (url, callback) => {
     const queue = new Queue(process.env.SCRAP_QUEUE);
+    console.log({ url, callback });
     const job = await queue.add(process.env.SCRAP_JOB, { url, callback });
 
     return {
