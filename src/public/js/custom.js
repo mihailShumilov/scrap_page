@@ -9,7 +9,12 @@ function isValidHttpUrl(string) {
 }
 
 function displayLoader(){
-    $(".content").html("<div class=\"d-flex align-items-center m-3\" id=\"loader\">\n" +
+    $(".content .left").html("<div class=\"d-flex align-items-center m-3\" id=\"loader\">\n" +
+        "        <strong>Loading...</strong>\n" +
+        "        <div class=\"spinner-border ml-auto\" role=\"status\" aria-hidden=\"true\"></div>\n" +
+        "    </div>");
+
+    $(".content .right").html("<div class=\"d-flex align-items-center m-3\" id=\"loader\">\n" +
         "        <strong>Loading...</strong>\n" +
         "        <div class=\"spinner-border ml-auto\" role=\"status\" aria-hidden=\"true\"></div>\n" +
         "    </div>");
@@ -32,8 +37,14 @@ $(function() {
     });
 
     socket.on("html", (data)=>{
-        // console.log('data from socket: ', data);
-        $(".content").html('<div class="pre-scrollable border p-3 m-3"><pre><code>'+encodeHTMLEntities(data)+'</code></pre></div>');
+        console.log('data from socket: ', data);
+        let selector = '.content';
+        if(data.mode === 'short'){
+            selector += ' .left';
+        }else{
+            selector += ' .right';
+        }
+        $(selector).html('<div class="pre-scrollable border p-3 m-3"><pre><code>'+encodeHTMLEntities(data.data)+'</code></pre></div>');
     });
 
 
@@ -41,13 +52,23 @@ $(function() {
         const url = $('#link-input').val();
         if(isValidHttpUrl(url)){
             displayLoader();
-            const requestData = {url, callback: window.location.href + 'callback', socketId: socket.id};
+            const requestData = {url, callback: window.location.href + 'callback', socketId: socket.id, mode: 'short', pretty: true};
+            const requestDataFull = {url, callback: window.location.href + 'callback', socketId: socket.id, mode: 'full', pretty: true};
             // console.log(requestData);
             $.ajax({
                 method: "POST",
                 url: '/scrap',
                 contentType : 'application/json',
                 data: JSON.stringify(requestData),
+                success: function(data){
+                    console.log('response data: ', data)
+                }
+            });
+            $.ajax({
+                method: "POST",
+                url: '/scrap',
+                contentType : 'application/json',
+                data: JSON.stringify(requestDataFull),
                 success: function(data){
                     console.log('response data: ', data)
                 }
