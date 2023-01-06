@@ -7,6 +7,7 @@ import {homePageHandler} from "./pages/home";
 import { Server } from "socket.io";
 import path from "path";
 import {callbackHandler} from "./callback";
+import {diffHandler} from "./diff";
 
 const app = express();
 const port = process.env.PORT || '8000';
@@ -21,7 +22,8 @@ app.set('view engine', 'ejs');
 
 app.get('/', homePageHandler);
 app.post('/callback', callbackHandler);
-app.post('/scrap/', acceptScrapeHandler);
+app.post('/scrap', acceptScrapeHandler);
+app.post('/diff', diffHandler);
 
 const httpServer = createServer(app);
 const io = new Server(httpServer,{});

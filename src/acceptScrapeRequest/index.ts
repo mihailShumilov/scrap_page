@@ -8,12 +8,12 @@ interface AcceptScrapeResponse {
     jobId: string;
 }
 
-type AcceptScrapeBuilder = (url: string, callback: string, socketId?: string) => Promise<AcceptScrapeResponse>;
+type AcceptScrapeBuilder = (url: string, callback: string, socketId?: string, mode?: string, pretty?: boolean) => Promise<AcceptScrapeResponse>;
 
-const acceptScrapeBuilder: AcceptScrapeBuilder = async (url, callback, socketId) => {
+const acceptScrapeBuilder: AcceptScrapeBuilder = async (url, callback, socketId, mode = 'full', pretty = true) => {
     const queue = new Queue(process.env.SCRAP_QUEUE);
-    console.log({ url, callback, socketId });
-    const job = await queue.add(process.env.SCRAP_JOB, { url, callback, socketId });
+    console.log({ url, callback, socketId, mode, pretty });
+    const job = await queue.add(process.env.SCRAP_JOB, { url, callback, socketId, mode, pretty });
 
     return {
         status: "ok",
@@ -23,8 +23,8 @@ const acceptScrapeBuilder: AcceptScrapeBuilder = async (url, callback, socketId)
 
 export const acceptScrapeHandler = async (req: Request, res: Response) => {
     const { body } = req;
-    const { url, callback, socketId } = body;
-    const response = await acceptScrapeBuilder(url, callback, socketId);
+    const { url, callback, socketId, mode, pretty } = body;
+    const response = await acceptScrapeBuilder(url, callback, socketId, mode, pretty);
 
     return res.json(response);
 };
