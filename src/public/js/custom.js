@@ -47,6 +47,9 @@ $(function() {
         if(shortText && fullText){
             doDiff();
         }
+        if(fullText){
+            buildJson(fullText, $('#link-input').val());
+        }
     });
 
     function doDiff(){
@@ -73,6 +76,18 @@ $(function() {
 
                 $('.content .diff').html('<div class="pre-scrollable border p-3 m-3"><pre><code id="diffCode"></code></pre></div>');
                 $('#diffCode').html(fragment);
+            }
+        });
+    }
+
+    function buildJson(html, url){
+        $.ajax({
+            method: "POST",
+            url: '/json',
+            contentType : 'application/json',
+            data: JSON.stringify({text: html, url}),
+            success: function(data){
+                console.log('json data: ', data);
             }
         });
     }

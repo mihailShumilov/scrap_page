@@ -8,6 +8,7 @@ import { Server } from "socket.io";
 import path from "path";
 import {callbackHandler} from "./callback";
 import {diffHandler} from "./diff";
+import {htmlToJsonHandler} from "./htmlToJson";
 
 const app = express();
 const port = process.env.PORT || '8000';
@@ -24,6 +25,7 @@ app.get('/', homePageHandler);
 app.post('/callback', callbackHandler);
 app.post('/scrap', acceptScrapeHandler);
 app.post('/diff', diffHandler);
+app.post('/json', htmlToJsonHandler);
 
 const httpServer = createServer(app);
 const io = new Server(httpServer,{});
