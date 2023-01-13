@@ -73,6 +73,10 @@ class HtmlToJson {
         return this.jsonData;
     }
 
+    /**
+     * Get words count
+     * @protected
+     */
     protected getWordsCount() {
         function noscript(strCode: string) {
             return strCode.replace(/<script.*?>.*?<\/script>/igm, '');
@@ -230,7 +234,7 @@ class HtmlToJson {
         this.processor("a").each(function (index, element) {
             const url = self.processor(element).attr("href");
 
-            let normalizedUrl =url;
+            let normalizedUrl = url;
 
             if (url) {
                 if (!url.includes("http://") || !url.includes("https://")) {

@@ -8,7 +8,7 @@ function isValidHttpUrl(string) {
     return url.protocol === "http:" || url.protocol === "https:";
 }
 
-function displayLoader(selector){
+function displayLoader(selector) {
     $(selector).html("<div class=\"d-flex align-items-center m-3\" id=\"loader\">\n" +
         "        <strong>Loading...</strong>\n" +
         "        <div class=\"spinner-border ml-auto\" role=\"status\" aria-hidden=\"true\"></div>\n" +
@@ -20,8 +20,9 @@ function encodeHTMLEntities(text) {
     return $("<textarea/>").text(text).html();
 }
 
-$(function() {
+$(function () {
     let shortText, fullText;
+    let isJSON = false;
     const socket = io();
 
     // client-side
@@ -33,36 +34,40 @@ $(function() {
         // console.log('disconnect: ', socket.id); // undefined
     });
 
-    socket.on("html", (data)=>{
+    socket.on("html", (data) => {
         console.log('data from socket: ', data);
+        console.log('isJSON: ', isJSON);
         let selector = '.content';
-        if(data.mode === 'short'){
+        if (data.mode === 'short') {
             selector += ' .left';
             shortText = data.data;
-        }else{
+        } else {
             selector += ' .right';
             fullText = data.data;
         }
-        $(selector).html('<div class="pre-scrollable border p-3 m-3"><pre><code>'+encodeHTMLEntities(data.data)+'</code></pre></div>');
-        if(shortText && fullText){
+        if (!isJSON) {
+            $(selector).html('<div class="pre-scrollable border p-3 m-3"><pre><code>' + encodeHTMLEntities(data.data) + '</code></pre></div>');
+        }
+        if (shortText && fullText) {
             doDiff();
         }
-        if(fullText){
+        if (fullText && isJSON) {
+            console.log('55');
             buildJson(fullText, $('#link-input').val());
         }
     });
 
-    function doDiff(){
+    function doDiff() {
         $.ajax({
             method: "POST",
             url: '/diff',
-            contentType : 'application/json',
+            contentType: 'application/json',
             data: JSON.stringify({textLeft: shortText, textRight: fullText}),
-            success: function(data){
+            success: function (data) {
                 console.log('response diff data: ', data);
                 const fragment = document.createDocumentFragment();
 
-                data.diffs.forEach(function(part){
+                data.diffs.forEach(function (part) {
                     // green for additions, red for deletions
                     // grey for common parts
                     color = part.added ? 'green' :
@@ -80,50 +85,86 @@ $(function() {
         });
     }
 
-    function buildJson(html, url){
+    function buildJson(html, url) {
         $.ajax({
             method: "POST",
             url: '/json',
-            contentType : 'application/json',
+            contentType: 'application/json',
             data: JSON.stringify({text: html, url}),
-            success: function(data){
-                console.log('json data: ', data);
+            success: function (data) {
+                isJSON = false;
+                $(".content .jsonWrapper").html('<div class="pre-scrollable border p-3 m-3"><pre><code>' + encodeHTMLEntities(JSON.stringify(data.result, null, 4)) + '</code></pre></div>');
             }
         });
     }
 
 
-    $('#parse-btn').on('click', function(e){
+    $('#parse-btn').on('click', function (e) {
         shortText = '';
         fullText = '';
         const url = $('#link-input').val();
-        if(isValidHttpUrl(url)){
+        if (isValidHttpUrl(url)) {
             displayLoader(".content .left");
             displayLoader(".content .right");
             displayLoader(".content .diff");
-            const requestData = {url, callback: window.location.href + 'callback', socketId: socket.id, mode: 'short', pretty: true};
-            const requestDataFull = {url, callback: window.location.href + 'callback', socketId: socket.id, mode: 'full', pretty: true};
+            const requestData = {
+                url,
+                callback: window.location.href + 'callback',
+                socketId: socket.id,
+                mode: 'short',
+                pretty: true
+            };
+            const requestDataFull = {
+                url,
+                callback: window.location.href + 'callback',
+                socketId: socket.id,
+                mode: 'full',
+                pretty: true
+            };
             // console.log(requestData);
             $.ajax({
                 method: "POST",
                 url: '/scrap',
-                contentType : 'application/json',
+                contentType: 'application/json',
                 data: JSON.stringify(requestData),
-                success: function(data){
+                success: function (data) {
                     console.log('response data: ', data)
                 }
             });
             $.ajax({
                 method: "POST",
                 url: '/scrap',
-                contentType : 'application/json',
+                contentType: 'application/json',
                 data: JSON.stringify(requestDataFull),
-                success: function(data){
+                success: function (data) {
                     console.log('response data: ', data)
                 }
             });
-        }else{
+        } else {
             console.log('WRONg URL');
         }
-    })
+    });
+
+    $('#json-btn').on('click', function (e) {
+        fullText = '';
+        const url = $('#link-input').val();
+        displayLoader(".content .jsonWrapper");
+        const requestDataFull = {
+            url,
+            callback: window.location.href + 'callback',
+            socketId: socket.id,
+            mode: 'full',
+            pretty: true
+        };
+        isJSON = true;
+        $.ajax({
+            method: "POST",
+            url: '/scrap',
+            contentType: 'application/json',
+            data: JSON.stringify(requestDataFull),
+            success: function (data) {
+                console.log('response data: ', data)
+            }
+        });
+    });
 });

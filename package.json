@@ -45,6 +45,7 @@
     "puppeteer-extra": "^3.3.4",
     "puppeteer-extra-plugin-recaptcha": "^3.6.6",
     "puppeteer-extra-plugin-stealth": "^2.11.1",
-    "socket.io": "^4.5.4"
+    "socket.io": "^4.5.4",
+    "url": "^0.11.0"
   }
 }
