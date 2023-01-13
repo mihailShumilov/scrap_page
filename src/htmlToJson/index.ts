@@ -1,5 +1,6 @@
 import {Request, Response} from 'express';
 import * as cheerio from 'cheerio';
+import {PageLoaderService} from "../service/pageLoader.service";
 // import normalizeUrl from 'normalize-url';
 
 
@@ -319,9 +320,14 @@ class HtmlToJson {
     // }
 }
 
-type HtmlToJsonBuilder = (text: string, socketId?: string) => Promise<HtmlToJsonResponse>;
+type HtmlToJsonBuilder = (url: string, text?: string, socketId?: string) => Promise<HtmlToJsonResponse>;
 
-const htmlToJsonBuilder: HtmlToJsonBuilder = async (text: string, url: string, socketId?: any) => {
+const htmlToJsonBuilder: HtmlToJsonBuilder = async (url: string, text: string, socketId?: any) => {
+    if(!text){
+        const pageLoader = new PageLoaderService(url);
+        await pageLoader.process();
+        text = pageLoader.afterRenderHtml;
+    }
     const htmlToJson = new HtmlToJson(text, url);
 
     return {
@@ -333,7 +339,7 @@ const htmlToJsonBuilder: HtmlToJsonBuilder = async (text: string, url: string, s
 export const htmlToJsonHandler = async (req: Request, res: Response) => {
     const {body} = req;
     const {text, url} = body;
-    const response = await htmlToJsonBuilder(text, url);
+    const response = await htmlToJsonBuilder(url, text);
 
     return res.json(response);
 };
