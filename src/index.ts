@@ -9,6 +9,8 @@ import path from "path";
 import {callbackHandler} from "./callback";
 import {diffHandler} from "./diff";
 import {htmlToJsonHandler} from "./htmlToJson";
+import {contactsParserPageHandler} from "./pages/contactsParser";
+import {getContactsHandler} from "./getContacts";
 
 const app = express();
 const port = process.env.PORT || '8000';
@@ -22,6 +24,7 @@ app.set('view engine', 'ejs');
 
 
 app.get('/', homePageHandler);
+app.post('/contacts-parser', getContactsHandler);
 app.post('/callback', callbackHandler);
 app.post('/scrap', acceptScrapeHandler);
 app.post('/diff', diffHandler);
