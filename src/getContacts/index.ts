@@ -43,7 +43,7 @@ class GetContacts {
 
         this.processor('a[href^="tel"]').each(function (i, elem) {
             const href = self.processor(this).attr('href')
-            phones.push(href.replace('tel://', ''));
+            phones.push(href.replace('tel://', '').replace('tel:', ''));
         });
 
         const phoneRe = /(\(?\d{3}\)?[ \-]\d{3}[ \-]\d{4})/gmi;
