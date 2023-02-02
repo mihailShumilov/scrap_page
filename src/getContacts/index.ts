@@ -25,14 +25,18 @@ class GetContacts {
 
     constructor(text: string, url: string) {
         this.originText = text;
-        this.processor = cheerio.load(text);
+        if(this.originText) {
+            this.processor = cheerio.load(text);
+        }
         this.url = url;
         this.jsonData = {};
     }
 
     public build(): ContactsData {
-        this.getPhoneNumbers();
-        this.getEmails();
+        if(this.originText) {
+            this.getPhoneNumbers();
+            this.getEmails();
+        }
 
         return this.jsonData;
     }
