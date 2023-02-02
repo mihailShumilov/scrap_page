@@ -15,19 +15,23 @@ export class PageLoaderService {
     }
 
     public async process(): Promise<void> {
-        puppeteer.use(StealthPlugin());
-        const browser = await puppeteer.launch({
-            headless: true,
-            args: ['--no-sandbox'],
-            defaultViewport: null,
-            executablePath: executablePath(),
-        });
-        const page = await browser.newPage();
-        const response = await page.goto(this.url, {waitUntil: 'domcontentloaded', timeout: 30000});
-        this._beforeRenderHtml = await response.text();
-        await page.waitForTimeout(10 * 1000);
-        this._afterRenderHtml = await page.evaluate(() => document.querySelector('*').outerHTML);
-        await page.close();
+        try {
+            puppeteer.use(StealthPlugin());
+            const browser = await puppeteer.launch({
+                headless: true,
+                args: ['--no-sandbox'],
+                defaultViewport: null,
+                executablePath: executablePath(),
+            });
+            const page = await browser.newPage();
+            const response = await page.goto(this.url, {waitUntil: 'domcontentloaded', timeout: 30000});
+            this._beforeRenderHtml = await response.text();
+            await page.waitForTimeout(3 * 1000);
+            this._afterRenderHtml = await page.evaluate(() => document.querySelector('*').outerHTML);
+            await page.close();
+        }catch (e) {
+            console.error('ERROR: ', e);
+        }
     }
 
 
