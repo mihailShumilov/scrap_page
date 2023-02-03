@@ -29,6 +29,7 @@ export class PageLoaderService {
             await page.waitForTimeout(3 * 1000);
             this._afterRenderHtml = await page.evaluate(() => document.querySelector('*').outerHTML);
             await page.close();
+            await browser.close();
         }catch (e) {
             console.error('ERROR: ', e);
         }
