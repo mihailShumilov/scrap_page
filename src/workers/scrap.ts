@@ -16,6 +16,7 @@ import pretty from 'pretty';
         args: ['--no-sandbox'],
         defaultViewport: null,
         executablePath: executablePath(),
+        ignoreHTTPSErrors: true,
     });
 
     const worker = new Worker(process.env.SCRAP_QUEUE, async (job: Job) => {
@@ -25,8 +26,11 @@ import pretty from 'pretty';
             //     width: 1440,
             //     height: 900
             // });
-            const response = await page.goto(job.data.url, {waitUntil: 'domcontentloaded', timeout: 30000});
-            await page.waitForTimeout(10 * 1000);
+            const response = await page.goto(job.data.url, {
+                waitUntil: job.data?.mode && job.data.mode === 'short' ? 'domcontentloaded' : 'networkidle2',
+                timeout: 30000
+            });
+            // await page.waitForTimeout(10 * 1000);
             let data = await page.evaluate(() => document.querySelector('*').outerHTML);
             if (job.data?.mode && job.data.mode === 'short') {
                 data = await response.text();
