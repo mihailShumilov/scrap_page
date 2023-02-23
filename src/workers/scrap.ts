@@ -40,7 +40,7 @@ import pretty from 'pretty';
             }
             await page.close();
             console.log('start callback: ', job.data.callback);
-            await axios.post(job.data.callback, {data, socketId: job.data.socketId, mode: job.data.mode}, {timeout: 30000});
+            await axios.post(job.data.callback, {data, socketId: job.data.socketId, mode: job.data.mode, url: job.data.url}, {timeout: 30000});
             console.log('finish callback: ', job.data.callback);
         },
         {concurrency: 10});

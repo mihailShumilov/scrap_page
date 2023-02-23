@@ -14,7 +14,7 @@ const acceptScrapeBuilder: AcceptScrapeBuilder = async (url, callback, socketId,
     const queue = new Queue(process.env.SCRAP_QUEUE);
     console.log({ url, callback, socketId, mode, pretty });
     const job = await queue.add(process.env.SCRAP_JOB, { url, callback, socketId, mode, pretty });
-
+    await queue.close();
     return {
         status: "ok",
         jobId: job.id
